@@ -1,6 +1,8 @@
 <script setup>
 import {ArrowRightBold, Location, Search} from "@element-plus/icons-vue";
 import {ref} from "vue";
+import Menu from "@/components/Menu.vue";
+import Footer from "@/components/Footer.vue";
 const place = ref("昆明市呈贡区云南大学")
 const input = ref('')
 </script>
@@ -77,8 +79,27 @@ const input = ref('')
             <p class="p3">立即开通</p>
             <el-icon class="icon2"><ArrowRightBold /></el-icon>
           </div>
+          <div class="Recommended">
+            <p class="p1">—— 推荐商家 ——</p>
+            <div class="head">
+              <Menu></Menu>
+            </div>
+          </div>
+          <div class="merchant">
+            <img src="src/assets/image/sj01.png">
+            <h3>万家饺子（软件园E18店）</h3>
+            <img src="src/assets/image/star.svg" class="star">
+            <p class="p1"> 3.2</p>
+            <p class="p2">月售350单</p>
+            <img src="src/assets/image/kuaidi.svg" class="kuaidi">
+            <p class="p3">$15起送 | $3配送</p>
+            <p class="p4">4km | 30分钟</p>
+            <p class="p5">多种饺子</p>
+          </div>
         </el-main>
-        <el-footer>Footer</el-footer>
+        <el-footer>
+          <Footer></Footer>
+        </el-footer>
       </el-container>
     </div>
 </template>
@@ -106,6 +127,7 @@ const input = ref('')
 .main{
   padding-left: 0.2rem;
   width: 100vw;
+  height: 75vh;
 }
 .sort{
 
@@ -206,5 +228,56 @@ const input = ref('')
 .icon2{
   margin-top: 1.1rem;
   color: #c2c037;
+}
+.Recommended{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.Recommended .p1{
+  margin-top: 2rem;
+  font-weight: bold;
+}
+.merchant{
+  display: flex;
+  flex-direction: row;
+}
+.merchant h3{
+  position: absolute;
+  margin-left: 9rem;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+.merchant .star{
+  width: 5rem;
+  margin-left: 1rem;
+}
+.merchant .p1{
+  margin-top: 3.5rem;
+  margin-left: 0.5rem;
+}
+.merchant .p2{
+  margin-top: 3.5rem;
+  margin-left: 0.5rem;
+}
+
+.merchant .kuaidi{
+  width: 3.3rem;
+  margin-left: 0.2rem;
+}
+.merchant .p3{
+  position: absolute;
+  margin-top: 5.5rem;
+  margin-left: 9rem;
+}
+.merchant .p4{
+  position: absolute;
+  margin-top: 5.5rem;
+  margin-left: 18.5rem;
+}
+.merchant .p5{
+  position: absolute;
+  margin-top: 7rem;
+  margin-left: 9rem;
 }
 </style>
