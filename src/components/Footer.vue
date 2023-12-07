@@ -27,6 +27,7 @@
 </template>
 <style scoped>
 .foot{
+
   display: flex;
   flex-direction: row;
   justify-content: space-between;

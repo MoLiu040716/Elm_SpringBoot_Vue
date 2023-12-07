@@ -23,8 +23,11 @@ const input = ref('')
           <div class="sort">
             <ul >
               <li>
-                <img  src="src/assets/image/dcfl01.png"  alt="食品1">
-                <p>美食</p>
+                <router-link to="/merchant" class="router-link">
+                  <img  src="src/assets/image/dcfl01.png"  alt="食品1">
+                  <p>美食</p>
+                </router-link>
+
               </li>
               <li>
                 <img  src="src/assets/image/dcfl02.png"  alt="食品2">
@@ -152,10 +155,16 @@ const input = ref('')
 .sort p{
   font-size: 0.8rem;
   margin-left: 1.5rem;
+  text-decoration: none;
 }
 .sort img{
   width: 4rem;
   margin-left: 1rem;
+}
+
+.router-link {
+  text-decoration: none;
+  color: black;
 }
 .advertisement{
   position: relative;
