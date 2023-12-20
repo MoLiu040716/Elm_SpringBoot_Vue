@@ -2,14 +2,32 @@
 <script setup>
 import {ref} from "vue";
 import Footer from "@/components/Footer.vue";
-
-
-const  sex = ref("男")
+import axios from "axios";
+const  sex = ref("")
 const phone = ref()
 const password = ref("")
-const address =ref("")
-
+const name = ref("")
+const password1 = ref("")
 function save(){
+  if (password.value !== password1.value){
+    alert("密码不一致")
+    return
+  }
+  axios({
+    url:'http://localhost:8082/elm_api/register',
+    method:"post",
+    data:{
+      userId:phone.value,
+      userName:name.value,
+      userSex:sex.value,
+      passWord:password.value
+    }
+  }).then(res =>{
+    console.log("注册")
+    if(res.data != null){
+      console.log("注册成功")
+    }
+  })
   console.log("保存")
 }
 </script>
@@ -32,7 +50,7 @@ function save(){
         </div>
         <div class="password1">
           <p>确认密码:</p>
-          <el-input v-model="password" class="input" placeholder="确认密码" type="password"/>
+          <el-input v-model="password1" class="input" placeholder="确认密码" type="password"/>
         </div>
         <div class="phone">
           <p>用户姓名:</p>
@@ -41,8 +59,8 @@ function save(){
         <div class="sex">
           <p>性别：</p>
           <el-radio-group v-model=sex class="selected">
-            <el-radio :label="男">男</el-radio>
-            <el-radio :label="6">女</el-radio>
+            <el-radio :label="1">男</el-radio>
+            <el-radio :label="0">女</el-radio>
           </el-radio-group>
         </div>
 
@@ -66,10 +84,10 @@ function save(){
 .head{
   width: 100vw;
   height: 3rem;
-
+  padding-left: 0rem;
 }
 .main{
-  height: 40rem;
+  height: 43rem;
   font-weight: lighter;
   padding-left: 2rem;
 }
@@ -81,6 +99,7 @@ function save(){
   margin-top: 0rem;
   color: white;
   padding-top: 0rem;
+  width: 100vw;
 }
 
 .phone{

@@ -10,20 +10,13 @@ import router from "@/router";
 import {useBusinessStore} from "@/stores/business";
 
 const place = ref("万家饺子 （软件园E18店）")
-const money =ref(33)
-const foodList= ref([])
+
 const orderStore = useOrderStore()
 const foodStore = useFoodStore()
 const businessStore = useBusinessStore()
 const alicolor = ref("")
 const wechatcolor = ref("")
-axios({
-  url:'http://localhost:8082/elm_api/getFood',
-  method:"post",
-  data: foodStore.carList
-}).then(res =>{
-  foodList.value=res.data
-})
+
 function ali(){
   alicolor.value= "green"
   wechatcolor.value = "default"
@@ -37,20 +30,16 @@ function pay(){
   foodStore.total=0
   foodStore.price=3
   businessStore.businessTotal[0]=0
-  foodStore.carList=[0,0,0,0,0,0,0,0,0,0,0,0]
   axios({
     url:'http://localhost:8082/elm_api/payOrder',
     method:"post",
     data:{
-      orderId:orderStore.orderId,
+      orderId:orderStore.unPayOrderId,
       orderState: 1
     }
   }).then(res =>{
     console.log(res)
   })
-  for (let i=0; i<foodStore.foodNum.length; i++){
-    foodStore.foodNum[i]=0
-  }
   router.push('/order')
   console.log(foodStore.foodNum)
 }
@@ -68,12 +57,12 @@ function pay(){
           <p class="p1">订单信息:</p>
           <div class="place">
             <p class="p1">{{place}}</p>
-            <p class="p2"> ${{money}}</p>
+            <p class="p2"> ${{orderStore.unPayOrder[0].orderTotal}}</p>
           </div>
           <ul>
-            <li v-for="item in foodList ">
+            <li v-for="item in orderStore.unPayOrder ">
               <div class="item1">
-                <p class="p1">{{item.foodName}} ✖{{foodStore.foodNum[item.foodId-1]}} </p>
+                <p class="p1">{{item.foodName}} ✖{{item.quantity}} </p>
                 <p class="p2">${{item.foodPrice}}</p>
               </div>
             </li>

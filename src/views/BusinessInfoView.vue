@@ -1,18 +1,84 @@
 
 <script setup>
-
-import Footer from "@/components/Footer.vue";
 import {Minus, Plus} from "@element-plus/icons-vue";
 import {ref} from "vue";
-const num = ref(0)
-const total =num
-function add(){
-  num.value=num.value+1;
+import {useUserStore} from "@/stores/user";
+import { useRouter} from "vue-router";
+import axios from "axios";
+import {useFoodStore} from "@/stores/food";
+import {useOrderStore} from "@/stores/order";
+import {useBusinessStore} from "@/stores/business";
+
+const foodList = ref([])
+const router = useRouter()
+const userStore = useUserStore()
+const foodStore = useFoodStore()
+const orderStore = useOrderStore()
+const businessStore = useBusinessStore()
+axios({
+  url:'http://localhost:8082/elm_api/foodInfo',
+  method:"get"
+}).then(res =>{
+  foodList.value=res.data
+})
+function add(item){
+  if (userStore.userId === ''){
+    router.push({
+      path:'/login'
+    })
+  }
+  else{
+    foodStore.carList[item.foodId-1]=item.foodId
+    foodStore.foodNum[item.foodId-1]=foodStore.foodNum[item.foodId-1]+1
+    foodStore.total=foodStore.total+1
+    foodStore.price=foodStore.price+item.foodPrice
+    businessStore.businessTotal[0]=foodStore.total
+  }
+
 }
 
-function reduce(){
-  num.value=num.value-1;
+function reduce(item){
+  if (userStore.userId === ''){
+    router.push({
+      path:'/login'
+    })
+  }
+  else{
+    foodStore.foodNum[item.foodId-1]=foodStore.foodNum[item.foodId-1]-1
+    foodStore.total=foodStore.total-1
+    foodStore.price=foodStore.price-item.foodPrice
+    businessStore.businessTotal[0]=foodStore.total
+  }
+
 }
+
+function account(){
+  const x =0
+  if (userStore.userId === ''){
+    router.push({
+      path:'/login'
+    })
+  }
+  else {
+    axios({
+      url:'http://localhost:8082/elm_api/saveOrder',
+      method:"post",
+      data:{
+        businessId:10001,
+        orderTotal:foodStore.price,
+        userId:userStore.userId,
+        orderState:0
+      }
+    }).then(res =>{
+      orderStore.orderId=res.data
+    })
+    router.push('/verify')
+    console.log(userStore.userId)
+    }
+
+
+}
+
 </script>
 
 <template>
@@ -30,56 +96,17 @@ function reduce(){
         </div>
         <div class="item">
           <ul>
-            <li>
-              <img src="src/assets/image/sp01.png">
+            <li v-for="item in foodList" key="item.foodId">
+              <img :src="item.foodImg">
               <div class="food">
-                <h3>纯肉鲜肉（水饺）</h3>
-                <p>新鲜猪肉</p>
-                <p>&#165;15</p>
+                <h3>{{ item.foodName }}</h3>
+                <p>{{item.foodExplain}}</p>
+                <p>${{item.foodPrice}}</p>
               </div>
               <div class="num">
-                <el-icon @click="add" class="add"><Plus /></el-icon>
-                <p>{{num}}</p>
-                <el-icon @click="reduce" class="reduce"><Minus /></el-icon>
-              </div>
-            </li>
-            <li>
-              <img src="src/assets/image/sp02.png">
-              <div class="food">
-                <h3>玉米鲜肉（水饺）</h3>
-                <p>玉米鲜肉</p>
-                <p>&#165;16</p>
-              </div>
-              <div class="num">
-                <el-icon @click="add" class="add"><Plus /></el-icon>
-                <p>{{num}}</p>
-                <el-icon @click="reduce" class="reduce"><Minus /></el-icon>
-              </div>
-            </li>
-            <li>
-              <img src="src/assets/image/sp03.png">
-              <div class="food">
-                <h3>虾仁三鲜（水饺）</h3>
-                <p>虾仁三鲜</p>
-                <p>&#165;22</p>
-              </div>
-              <div class="num">
-                <el-icon @click="add" class="add"><Plus /></el-icon>
-                <p>{{num}}</p>
-                <el-icon @click="reduce" class="reduce"><Minus /></el-icon>
-              </div>
-            </li>
-            <li>
-              <img src="src/assets/image/sp01.png">
-              <div class="food">
-                <h3>纯肉鲜肉（水饺）</h3>
-                <p>新鲜猪肉</p>
-                <p>&#165;15</p>
-              </div>
-              <div class="num">
-                <el-icon @click="add" class="add"><Plus /></el-icon>
-                <p>{{num}}</p>
-                <el-icon @click="reduce" class="reduce"><Minus /></el-icon>
+                <el-icon @click="add(item)" class="add"><Plus /></el-icon>
+                <p>{{foodStore.foodNum[item.foodId-1]}}</p>
+                <el-icon @click="reduce(item)" class="reduce"><Minus /></el-icon>
               </div>
             </li>
           </ul>
@@ -89,15 +116,15 @@ function reduce(){
         <div class="car">
           <img src="src/assets/image/car.svg">
           <div class="number">
-              <p>{{total}}</p>
+              <p>{{foodStore.total}}</p>
           </div>
           <div class="money">
-            <p class="p1">$12.5</p>
+            <p class="p1">${{foodStore.price}}</p>
             <p class="p2">另需配送费3元</p>
           </div>
         </div>
         <div class="pay">
-          <router-link to="verify" class="router-link"> <p>去结算</p></router-link>
+          <p @click="account">去结算</p>
         </div>
       </el-footer>
     </el-container>
@@ -112,6 +139,7 @@ function reduce(){
   display: flex;
   justify-content: center;
   align-items: center;
+
 }
 .head p{
   color: white;
@@ -119,6 +147,7 @@ function reduce(){
 }
 .main{
   display: flex;
+  height: 42rem;
   flex-direction: column ;
   align-items: center;
 }
@@ -169,6 +198,7 @@ function reduce(){
   display: flex;
   flex-direction: row;
   padding-right: 0rem;
+  margin-left: 0rem;
 }
 .car{
   margin-top: 2rem;
@@ -207,14 +237,14 @@ function reduce(){
   width: 10rem;
   height: 3.5rem;
   margin-top: 2rem;
-  background-color: green;
+  background-color: #1fc01f;
   justify-content: center;
   align-items: center;
   display: flex;
 }
 .pay p{
-  color: white;
   font-size: 1.3rem;
+
 }
 .router-link{
   text-decoration: none;

@@ -1,8 +1,22 @@
 
 
 <script setup>
-
 import Footer from "@/components/Footer.vue";
+import axios from "axios";
+import {ref} from "vue";
+import {useFoodStore} from "@/stores/food";
+import {useBusinessStore} from "@/stores/business";
+const businessList = ref([])
+const foodStore = useFoodStore()
+const businessStore = useBusinessStore()
+axios({
+  url:'http://localhost:8082/elm_api/getbusinessinfo',
+  method:"get"
+}).then(res=>{
+  businessList.value = res.data;
+})
+
+
 </script>
 <template>
   <div class="common-layout">
@@ -10,69 +24,28 @@ import Footer from "@/components/Footer.vue";
       <el-header class="header">
           <p>商家列表</p>
       </el-header>
-      <el-main class="main0">
-        <div class="main">
+      <el-main class="main">
           <ul >
-            <li class="merchant">
-                <div class="num">
-                  <p>1</p>
+            <li class="merchant" v-for="(item,index) in businessList" key="item.businessId">
+              <router-link to="/businessInfo"><img :src="item.businessImg"></router-link>
+              <div class="num">
+                <p>{{businessStore.businessTotal[index]}}</p>
+              </div>
+              <div class="content">
+                <div class="name">
+                  <h3>{{item.businessName}}</h3>
                 </div>
-                <router-link to="/businessInfo"><img src="src/assets/image/sj01.png"></router-link>
-
-                <h3>万家饺子（软件园E18店）</h3>
-                <img src="src/assets/image/star.svg" class="star">
-                <p class="p1"> 3.2</p>
-                <p class="p3">$15起送 | $3配送</p>
-                <p class="p5">多种饺子</p>
-            </li>
-            <li class="merchant">
-              <div class="num">
-                <p>1</p>
+                <div class="info">
+                  <img src="src/assets/image/star.svg" class="star">
+                  <p class="p1"> 3.2</p>
+                  <p class="p3">${{item.starPrice}}起送 | ${{item.deliveryPrice}}配送</p>
+                </div>
+                <p class="p5">{{item.businessExplain}}</p>
               </div>
-              <img src="src/assets/image/sj02.png">
-              <h3>小锅豆腐馆（全运店）</h3>
-              <img src="src/assets/image/star.svg" class="star">
-              <p class="p1"> 4.0</p>
-              <p class="p3">$15起送 | $3配送</p>
-              <p class="p5">特色美食</p>
             </li>
-            <li class="merchant">
-              <div class="num">
-                <p>1</p>
-              </div>
-              <img src="src/assets/image/sj03.png">
-              <h3>麦当劳麦乐送（全运路店）</h3>
-              <img src="src/assets/image/star.svg" class="star">
-              <p class="p1"> 4.5</p>
-              <p class="p3">$15起送 | $3配送</p>
-              <p class="p5">汉堡薯条</p>
-            </li>
-            <li class="merchant">
-              <div class="num">
-                <p>1</p>
-              </div>
-              <img src="src/assets/image/sj04.png">
-              <h3>米村拌饭（浑南店）</h3>
-              <img src="src/assets/image/star.svg" class="star">
-              <p class="p1"> 4.0</p>
-              <p class="p3">$15起送 | $3配送</p>
-              <p class="p5">各种炒菜拌饭</p>
-            </li>
-            <li class="merchant">
-              <div class="num">
-                <p>1</p>
-              </div>
-              <img src="src/assets/image/sj05.png">
-              <h3>申记串道（中海康城店）</h3>
-              <img src="src/assets/image/star.svg" class="star">
-              <p class="p1"> 4.0</p>
-              <p class="p3">$15起送 | $3配送</p>
-              <p class="p5">烤串炸串</p>
-            </li>
-
           </ul>
 
-        </div>
+
       </el-main>
       <el-footer class="foot">
         <Footer></Footer>
@@ -94,12 +67,11 @@ import Footer from "@/components/Footer.vue";
   font-size: 1.5rem;
   color: white;
 }
-.main0{
-  height: 47rem;
-}
 .main{
-  height: auto;
+  height: 43rem;
+  padding-top: 0rem;
 }
+
 .main ul{
   display: flex;
   flex-direction: column;
@@ -115,43 +87,54 @@ import Footer from "@/components/Footer.vue";
   margin-left: 0rem;
   margin-top: 1rem;
 }
+.merchant .content{
+  display: flex;
+  flex-direction: column;
+}
+.merchant .name{
+  width: 14rem;
+  height: 2rem;
+}
 .merchant h3{
-  position: absolute;
-  margin-left: 9rem;
+  margin-left: 1rem;
+  width: 14rem;
   margin-top: 1rem;
   font-size: 1.1rem;
 }
+.merchant .info{
+  height: 4rem;
+  display: flex;
+  flex-direction: row;
+}
 .merchant .star{
   width: 5rem;
-  margin-left: 1rem;
+  margin-left: 0.4rem;
 }
 .merchant .p1{
-  margin-top: 3.5rem;
+  font-size: 0.8rem;
+ margin-top: 1.4rem;
   margin-left: 0.5rem;
 }
 
 .merchant .p3{
-  position: absolute;
-  margin-top: 5.5rem;
-  margin-left: 9rem;
+  font-size: 0.8rem;
+  margin-top: 1.4rem;
+  margin-left: 0.5rem;
 }
 
 .merchant .p5{
-  position: absolute;
-  margin-top: 7rem;
-  margin-left: 9rem;
+
+  margin-top: 0rem;
+  margin-left: 1rem;
 }
 .num{
   width: 1.2rem;
   height: 1.2rem;
-  margin-left: 7rem;
-  position: absolute;
   border-radius: 50%;
   background-color: red;
 }
 .num p{
-  position: absolute;
   margin-top: 0rem;
-  margin-left: 0.4rem;
+  margin-left: 0.3rem;
 }
 </style>

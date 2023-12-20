@@ -2,14 +2,33 @@
 <script setup>
 import {ref} from "vue";
 import Footer from "@/components/Footer.vue";
+import axios from "axios";
+import {useUserStore} from "@/stores/user";
+import {useRouter} from "vue-router";
 
-const input =ref("")
-const  sex = ref("男")
-const phone = ref()
-const address =ref("")
-
+const router = useRouter()
+const input =ref()
+const passWord =ref("")
+const userStore = useUserStore()
 function login(){
   console.log("登录")
+  axios({
+    url:'http://localhost:8082/elm_api/login',
+    method:"post",
+    data:{
+      userId:input.value,
+      passWord:passWord.value
+    }
+  }).then(res =>{
+    console.log(res.data)
+    userStore.token=res.data
+    if (res.data != null){
+      userStore.userId=input.value
+      userStore.userPsw=passWord.value
+
+      router.go(-1)
+    }
+  })
 }
 </script>
 <template>
@@ -27,12 +46,10 @@ function login(){
         </div>
         <div class="password">
           <p>密码:</p>
-          <el-input v-model="phone" class="input" placeholder="密码" type="password"/>
+          <el-input v-model="passWord" class="input" placeholder="密码" type="password"/>
         </div>
         <div class="button">
-          <router-link to="/">
             <el-button type="success" @click="login" class="login">登录</el-button>
-          </router-link>
           <router-link to="/register">
             <el-button type="info" class="register" >注册</el-button>
           </router-link>
@@ -40,8 +57,8 @@ function login(){
         </div>
 
       </el-main>
-      <el-footer>
-        <Footer></Footer>
+      <el-footer class="foot">
+        <Footer class="item"></Footer>
       </el-footer>
     </el-container>
   </div>
@@ -51,12 +68,13 @@ function login(){
 .head{
   width: 100vw;
   height: 3rem;
-
+  padding-left: 0rem;
 }
 .main{
-  height: 40rem;
+  height: 43rem;
+
   font-weight: lighter;
-  padding-left: 2rem;
+  padding-left: 1rem;
 }
 .title{
   background-color:  rgba(86, 86, 224, 0.96);
@@ -66,6 +84,8 @@ function login(){
   margin-top: 0rem;
   color: white;
   padding-top: 0rem;
+  margin-left: 0rem;
+  width: 100vw;
 }
 
 .password{
@@ -103,11 +123,18 @@ function login(){
 }
 .login{
   margin-left: 9rem;
+  width: 8rem;
 }
 .register{
   margin-left: 9rem;
   margin-top: 1rem;
+  width: 8rem;
 }
-
+.foot{
+  padding-left: 0rem;
+}
+.foot .item{
+  margin-left: 1rem;
+}
 
 </style>

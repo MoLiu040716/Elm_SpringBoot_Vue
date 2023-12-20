@@ -2,14 +2,30 @@
 <script setup>
 import {ref} from "vue";
 import Footer from "@/components/Footer.vue";
+import axios from "axios";
+import {useAddressStore} from "@/stores/address";
 
 const input =ref("")
-const  sex = ref("男")
-const phone = ref()
+const  sex = ref()
+const phone = ref("")
 const address =ref("")
+const emits = defineEmits(['TransMsg'])
+const addressStore = useAddressStore()
+
 
 function save(){
   console.log("保存")
+  axios({
+    url:'http://localhost:8082/elm_api/editAddress',
+    method:"post",
+    data:{
+      daId:addressStore.contactPlace.daId,
+      contactName:input.value,
+      contactSex:sex.value,
+      contactTel:phone.value,
+      address:address.value
+    }
+  })
 }
 </script>
 <template>
@@ -17,7 +33,7 @@ function save(){
     <el-container>
       <el-header class="head">
         <div class="title">
-          <p>编辑送货地址</p>
+          <p>编辑送货地址{{Address}}</p>
         </div>
       </el-header>
       <el-main class="main">
@@ -28,8 +44,8 @@ function save(){
         <div class="sex">
           <p>性别：</p>
           <el-radio-group v-model=sex class="selected">
-            <el-radio :label="男">男</el-radio>
-            <el-radio :label="6">女</el-radio>
+            <el-radio :label="1">男</el-radio>
+            <el-radio :label="0">女</el-radio>
           </el-radio-group>
         </div>
         <div class="phone">

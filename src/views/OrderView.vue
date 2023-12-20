@@ -3,13 +3,93 @@
 <script setup>
 import {ref} from "vue";
 import Footer from "@/components/Footer.vue";
-import {Document} from "@element-plus/icons-vue";
+import {CaretBottom, Document} from "@element-plus/icons-vue";
+import axios from "axios";
+import {useRouter} from "vue-router";
+import {useOrderStore} from "@/stores/order";
 
 const place = ref("万家饺子 （软件原E18店）")
-const money = ref(49)
+const unPayList = ref([])
+const payList = ref([])
+const itemList = ref([])
+const foodList = ref([])
+const router = useRouter()
+const showItem = ref(new Array(100).fill(false))
+const orderStore = useOrderStore()
+axios({
+  url:'http://localhost:8082/elm_api/pushPayOreder',
+  method:"get"
+}).then(res =>{
+  payList.value=res.data
+  console.log(res.data)
+})
+axios({
+  url:'http://localhost:8082/elm_api/pushUnPayOrder',
+  method:"get"
+}).then(res =>{
+  unPayList.value=res.data
+})
 
-function pay(){
-  console.log("pay")
+
+function pay(item){
+  axios({
+    url:'http://localhost:8082/elm_api/unPayOrder',
+    method:"post",
+    data:{
+      orderId:item.orderId
+    }
+  }).then(res =>{
+    orderStore.unPayOrder=res.data
+  })
+  orderStore.unPayOrderId=item.orderId
+  router.push('/unPayOrder')
+}
+function show(index,item){
+  if (showItem.value[index]===true){
+    showItem.value[index]=false
+  }
+  else{
+    showItem.value[index]=true
+  }
+  axios({
+    url:'http://localhost:8082/elm_api/pushUnPayItem',
+    method:"post",
+    data:{
+      orderId:item.orderId
+    }
+  }).then(res =>{
+    itemList.value=res.data
+    console.log(res.data)
+  })
+
+  for (let i=0;i<itemList.value.length;i++){
+    axios({
+      url:'http://localhost:8082/elm_api/pushFood',
+      method:"post",
+      data:{
+        foodId:itemList.value[i].foodId
+      }
+    }).then(res =>{
+      foodList.value[i]=res.data
+      console.log(res.data)
+      console.log("test")
+    })
+  }
+
+
+}
+
+function selectItem(item){
+  axios({
+    url:'http://localhost:8082/elm_api/pushFood',
+    method:"post",
+    data:{
+      foodId:item.foodId
+    }
+  }).then(res =>{
+    foodList.value=res.data
+    console.log(res.data)
+  })
 }
 </script>
 
@@ -24,26 +104,42 @@ function pay(){
       <el-main class="main">
         <div class="unpay">
           <p class="p1">未支付订单信息</p>
-          <div >
-            <div class="name">
-              <p>{{place}}</p>
-              <p class="money">${{money}}</p>
-              <div class="pay" @click="pay">
-                <p>去支付</p>
-              </div>
-            </div>
-            <div class="item1">
-              <p class="p1">纯肉水饺（水饺）✖ 2</p>
-              <p class="p2">$15</p>
-            </div>
-            <div class="drive">
-              <p>配送费</p>
-              <p class="p2">$3</p>
-            </div>
+          <div>
+            <ul>
+              <li v-for="(item,index) in unPayList">
+                <div class="name">
+                  <p>{{place}}</p>
+                  <el-icon class="icon" @click="show(index,item)" ><CaretBottom /></el-icon>
+                  <p class="money">${{item.orderTotal}}</p>
+                  <div class="pay" @click="pay(item)">
+                    <p>去支付</p>
+                  </div>
+                </div>
+                <div class="item1" v-show="showItem[index]" v-for="(i,index1) in itemList"  >
+                  <p class="p1">{{foodList[index1].foodName}}✖ {{i.quantity}}</p>
+                  <p class="p2">${{foodList[index1].foodPrice}}</p>
+                </div>
+
+                <div class="drive" v-show="showItem[index]">
+                  <p>配送费</p>
+                  <p class="p2">$3</p>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
         <div class="pay">
           <p>已支付的订单信息</p>
+          <div>
+            <ul>
+              <li v-for="item in payList">
+                <div class="name">
+                  <p>{{place}}</p>
+                  <p class="money">${{item.orderTotal}}</p>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
       </el-main>
       <el-footer>
@@ -57,10 +153,10 @@ function pay(){
 .head{
   width: 100vw;
   height: 3rem;
-
+  padding-left: 0rem;
 }
 .main{
-  height: 40rem;
+  height: 44rem;
   padding-left: 1rem;
 }
 .title{
@@ -71,9 +167,11 @@ function pay(){
   margin-top: 0rem;
   color: white;
   padding-top: 0rem;
+  width: 100vw;
 }
 .unpay{
   padding-left: 1rem;
+
 }
 .unpay .p1{
   font-weight: lighter;
@@ -86,7 +184,7 @@ function pay(){
   height: 2.4rem;
 }
 .unpay .name .money{
-  margin-left: 4rem;
+  margin-left: 2rem;
 }
 .unpay .name .pay{
   margin-left: 1rem;
@@ -128,5 +226,26 @@ function pay(){
   font-weight: lighter;
   margin-top: 5rem;
   padding-left: 1rem;
+}
+ul{
+  padding-left: 0rem;
+}
+li{
+  list-style: none;
+  margin-left: 0rem;
+}
+.pay .name{
+  display: flex;
+  flex-direction: row;
+  font-weight: lighter;
+  height: 2.4rem;
+}
+
+.pay .name .money{
+  margin-left: 8rem;
+}
+.icon{
+  margin-top: 1rem;
+  margin-left: 1rem;
 }
 </style>

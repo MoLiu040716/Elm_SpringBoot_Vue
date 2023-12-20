@@ -2,14 +2,32 @@
 <script setup>
 import {ref} from "vue";
 import Footer from "@/components/Footer.vue";
+import axios from "axios";
+import {useAddressStore} from "@/stores/address";
+import {useUserStore} from "@/stores/user";
 
-const input =ref("")
-const  sex = ref("男")
+const name =ref("")
+const  sex = ref()
 const phone = ref()
 const address =ref("")
-
+const addressStore = useAddressStore()
+const userStore = useUserStore()
 function save(){
   console.log("保存")
+  axios({
+    url:'http://localhost:8082/elm_api/saveAddress',
+    method:"post",
+    data:{
+      contactName:name.value,
+      contactSex:sex.value,
+      contactTel:phone.value,
+      address:address.value,
+      userId:userStore.userId
+    }
+  }).then(res=>{
+    if (res.data!=null)
+      alert("保存成功")
+  })
 }
 </script>
 <template>
@@ -23,13 +41,13 @@ function save(){
       <el-main class="main">
         <div class="name">
          <p>联系人:</p>
-         <el-input v-model="input" class="input" placeholder="联系人姓名" />
+         <el-input v-model="name" class="input" placeholder="联系人姓名" />
         </div>
         <div class="sex">
           <p>性别：</p>
           <el-radio-group v-model=sex class="selected">
-            <el-radio :label="男">男</el-radio>
-            <el-radio :label="6">女</el-radio>
+            <el-radio :label="1">男</el-radio>
+            <el-radio :label="0">女</el-radio>
           </el-radio-group>
         </div>
         <div class="phone">

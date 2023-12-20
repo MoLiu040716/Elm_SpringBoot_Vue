@@ -2,20 +2,37 @@
 <script setup>
 import {ref} from "vue";
 import Footer from "@/components/Footer.vue";
-import {CloseBold, Edit} from "@element-plus/icons-vue";
+import {Check, CloseBold, Edit} from "@element-plus/icons-vue";
+import axios from "axios";
+import {useRouter} from "vue-router";
+import {useAddressStore} from "@/stores/address";
 
 const name = ref("王先生")
-const phone =ref (13140263099)
-const place =ref("云南大学呈贡校区")
 const home = ref("楸院三栋")
+const placeList = ref([])
+const router = useRouter()
 
-function edit(){
+const addressStore = useAddressStore()
+function edit(item){
   console.log("修改资料")
+  router.push('/editAddress')
+  addressStore.contactPlace=item
 }
 function close(){
   console.log("删除")
 }
 
+axios({
+  url:'http://localhost:8082/elm_api/pushAddress',
+  method:"get"
+}).then(res=>{
+  placeList.value=res.data
+})
+
+function changeAddress(item){
+  addressStore.newContactPlace=item
+  router.push('/verify')
+}
 </script>
 <template>
   <div class="common-layout">
@@ -26,22 +43,25 @@ function close(){
           </div>
       </el-header>
       <el-main class="main">
-        <div class="address">
-          <p class="p1">{{name}} {{phone}}</p>
-          <div class="update">
-            <p class="p2">{{place}}</p>
-            <router-link to="/editAddress" class="router-link">
-              <el-icon class="edit" @click="edit"><Edit /></el-icon>
-            </router-link>
-            <el-icon class="close" @click="close"><CloseBold /></el-icon>
-          </div>
-          <p class="p3">{{home}}</p>
-        </div>
+        <ul>
+          <li v-for="item in placeList" key="item.da_id">
+            <div class="address" >
+              <p class="p1">{{item.contactName}} {{item.contactTel}}</p>
+              <div class="update">
+                <p class="p2">{{item.address}}</p>
+                <el-icon class="check" @click="changeAddress(item)"><Check /></el-icon>
+                <el-icon class="edit" @click="edit(item)" ><Edit /></el-icon>
+                <el-icon class="close" @click="close"><CloseBold /></el-icon>
+              </div>
+              <p class="p3">{{home}}</p>
+            </div>
+
+          </li>
+        </ul>
         <div class="button">
           <router-link to="/newAddress">
             <el-button type="primary">新增收货地址</el-button>
           </router-link>
-
         </div>
       </el-main>
       <el-footer>
@@ -55,7 +75,8 @@ function close(){
 .head{
   width: 100vw;
   height: 3rem;
-
+  padding-left: 0rem;
+  padding-right: 0rem;
 }
 .main{
   height: 40rem;
@@ -78,14 +99,22 @@ function close(){
   font-weight: lighter;
   border: 2px gray;
 }
+.address .check{
+   position: absolute;
+   margin-top: 0.4rem;
+   margin-left: 19em;
+
+ }
 .address .edit{
+  position: absolute;
   margin-top: 0.4rem;
-  margin-left: 11rem;
+  margin-left: 20rem;
 
 }
 .address .close{
+  position: absolute;
   margin-top: 0.4rem;
-  margin-left: 0.5rem;
+  margin-left: 21rem;
 }
 .update{
   margin-top: 0rem;
@@ -110,5 +139,12 @@ function close(){
 .router-link{
   text-decoration: none;
   color: black;
+}
+ul{
+  padding-left: 0rem;
+}
+li{
+  list-style: none;
+  margin-left: 0rem;
 }
 </style>

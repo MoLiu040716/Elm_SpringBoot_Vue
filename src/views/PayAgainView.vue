@@ -2,45 +2,18 @@
 <script setup>
 import {ref} from "vue";
 import {ArrowRightBold} from "@element-plus/icons-vue";
-import {useFoodStore} from "@/stores/food";
-import axios from "axios";
 import {useRouter} from "vue-router";
-import {useUserStore} from "@/stores/user";
 import {useOrderStore} from "@/stores/order";
 import {useAddressStore} from "@/stores/address";
-const person= ref("王先生 13140263099")
-const place = ref("云南大学")
 const shop = ref("万家饺子 （软件园E18店）")
-const foodList= ref([])
-const foodStore = useFoodStore()
 const router = useRouter()
 const orderStore = useOrderStore()
 const addressStore = useAddressStore()
-axios({
-  url:'http://localhost:8082/elm_api/getFood',
-  method:"post",
-  data: foodStore.carList
-}).then(res =>{
-  foodList.value=res.data
-})
 
 function goPay(){
-
-  router.push("/pay")
+  router.push("/payAgain")
 }
 
-function orderItem(foodId,quantity){
-  axios({
-    url:'http://localhost:8082/elm_api/saveDetailet',
-    method:"post",
-    data:{
-      foodId:foodId,
-      orderId:orderStore.orderId,
-      quantity:quantity
-    }
-  })
-
-}
 </script>
 <template>
   <div class="common-layout">
@@ -65,13 +38,12 @@ function orderItem(foodId,quantity){
           <p>{{shop}}</p>
         </div>
         <ul>
-          <li v-for="item in foodList">
-            {{orderItem(item.foodId,foodStore.foodNum[item.foodId-1])}}
-              <div class="item1">
-                <img :src="item.foodImg">
-                <p class="p1">{{item.foodName}} ✖{{foodStore.foodNum[item.foodId-1]}} </p>
-                <p class="p2">${{item.foodPrice}}</p>
-              </div>
+          <li v-for="item in orderStore.unPayOrder">
+            <div class="item1">
+              <img :src="item.foodImg">
+              <p class="p1">{{item.foodName}} ✖{{ item.quantity}}</p>
+              <p class="p2">${{item.foodPrice}}</p>
+            </div>
           </li>
         </ul>
         <div class="delivery">
@@ -81,7 +53,7 @@ function orderItem(foodId,quantity){
       </el-main>
       <el-footer class="foot">
         <div class="money">
-          <p>${{foodStore.price}}</p>
+          <p>${{orderStore.unPayOrder[0].orderTotal}}</p>
         </div>
         <div  class="pay">
           <router-link to="/pay" class="router-link" @click="goPay"> <p>去支付</p></router-link>

@@ -11,6 +11,7 @@ import NewAdViwe from "@/views/NewAdViwe.vue";
 import EditAdView from "@/views/EditAdView.vue";
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
+import {useUserStore} from "@/stores/user";
 
 
 const router = createRouter({
@@ -75,8 +76,28 @@ const router = createRouter({
       path:'/register',
       name:'register',
       component:RegisterView
+    },
+    {
+      path:'/unPayOrder',
+      name:'unPayOrder',
+      component:()=>import('../views/PayAgainView.vue')
+    },
+    {
+      path:'/payAgain',
+      name:'payAgain',
+      component:()=>import('../views/PayAgain1View.vue')
     }
   ]
 })
 
+router.beforeEach((to, from, next)=>{
+  const userStore = useUserStore()
+  const token = userStore.token
+  if (token || to.path==='/login' || to.path==='/register'){
+      next();
+  }
+  else {
+    next('/login')
+  }
+})
 export default router
